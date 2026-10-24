@@ -1,0 +1,21 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.soudi.advancedreboot'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.soudi.advancedreboot'
+        minSdk 26
+        targetSdk 33
+        versionCode 3
+        versionName '1.2'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+    }
+}
