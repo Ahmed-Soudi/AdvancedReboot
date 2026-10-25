@@ -44,6 +44,11 @@ jobs:
           chmod 600 "${RUNNER_TEMP}/AdvancedReboot.p12"
 
       - name: Generate Gradle wrapper
+        env:
+          ADVANCED_REBOOT_KEYSTORE: ${{ runner.temp }}/AdvancedReboot.p12
+          ADVANCED_REBOOT_STORE_PASSWORD: ${{ secrets.ADVANCED_REBOOT_STORE_PASSWORD }}
+          ADVANCED_REBOOT_KEY_ALIAS: ${{ secrets.ADVANCED_REBOOT_KEY_ALIAS }}
+          ADVANCED_REBOOT_KEY_PASSWORD: ${{ secrets.ADVANCED_REBOOT_KEY_PASSWORD }}
         run: |
           gradle wrapper --gradle-version 8.11.1
 
