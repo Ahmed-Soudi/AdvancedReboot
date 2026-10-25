@@ -1,4 +1,4 @@
-name: Build APK
+name: Build AdvancedReboot APK
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build AdvancedReboot APK
+    name: Build signed AdvancedReboot APK
     runs-on: ubuntu-latest
 
     steps:
@@ -29,20 +29,83 @@ jobs:
 
       - name: Install required Android SDK packages
         run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
+
+      - name: Restore signing keystore
+        shell: bash
+        run: |
+          printf '%s' "${{ secrets.ADVANCED_REBOOT_KEYSTORE_BASE64 }}" \
+            | base64 --decode \
+            > "${RUNNER_TEMP}/AdvancedReboot.p12"
+
+          chmod 600 "${RUNNER_TEMP}/AdvancedReboot.p12"
 
       - name: Generate Gradle wrapper
-        run: gradle wrapper --gradle-version 8.11.1
+        run: |
+          gradle wrapper --gradle-version 8.11.1
 
       - name: Make Gradle wrapper executable
-        run: chmod +x gradlew
+        run: |
+          chmod +x gradlew
 
-      - name: Build release APK
-        run: ./gradlew --no-daemon clean assembleRelease
+      - name: Build signed release APK
+        env:
+          ADVANCED_REBOOT_KEYSTORE: ${{ runner.temp }}/AdvancedReboot.p12
+          ADVANCED_REBOOT_STORE_PASSWORD: ${{ secrets.ADVANCED_REBOOT_STORE_PASSWORD }}
+          ADVANCED_REBOOT_KEY_ALIAS: ${{ secrets.ADVANCED_REBOOT_KEY_ALIAS }}
+          ADVANCED_REBOOT_KEY_PASSWORD: ${{ secrets.ADVANCED_REBOOT_KEY_PASSWORD }}
+        run: |
+          ./gradlew --no-daemon clean assembleRelease
 
-      - name: Upload release APK
+      - name: Verify APK signature
+        shell: bash
+        run: |
+          "${ANDROID_HOME}/build-tools/35.0.0/apksigner" \
+            verify \
+            --verbose \
+            --print-certs \
+            app/build/outputs/apk/release/AdvancedReboot.apk
+
+      - name: Verify expected signing certificate
+        shell: bash
+        run: |
+          ACTUAL_CERT=$(
+            "${ANDROID_HOME}/build-tools/35.0.0/apksigner" \
+              verify \
+              --print-certs \
+              app/build/outputs/apk/release/AdvancedReboot.apk \
+              | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' \
+              | tr -d ':' \
+              | tr '[:lower:]' '[:upper:]'
+          )
+
+          EXPECTED_CERT=$(
+            printf '%s' "${{ secrets.ADVANCED_REBOOT_CERT_SHA256 }}" \
+              | tr -d ':' \
+              | tr '[:lower:]' '[:upper:]'
+          )
+
+          echo "Actual certificate SHA-256:"
+          echo "$ACTUAL_CERT"
+
+          if [ -z "$ACTUAL_CERT" ]; then
+            echo "ERROR: APK is unsigned."
+            exit 1
+          fi
+
+          if [ "$ACTUAL_CERT" != "$EXPECTED_CERT" ]; then
+            echo "ERROR: APK was signed with the wrong certificate."
+            exit 1
+          fi
+
+          echo "Signing certificate verified successfully."
+
+      - name: Upload AdvancedReboot APK
         uses: actions/upload-artifact@v4
         with:
-          name: AdvancedReboot-v1.3-release
+          name: AdvancedReboot-v1.3.1
           path: app/build/outputs/apk/release/AdvancedReboot.apk
           if-no-files-found: error

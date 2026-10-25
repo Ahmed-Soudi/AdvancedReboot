@@ -10,13 +10,39 @@ android {
         applicationId "com.soudi.advancedreboot"
         minSdk 26
         targetSdk 33
-        versionCode 4
-        versionName "1.3"
+        versionCode 5
+        versionName "1.3.1"
+    }
+
+    signingConfigs {
+        release {
+            def keystorePath = System.getenv("ADVANCED_REBOOT_KEYSTORE")
+            def storePasswordValue = System.getenv("ADVANCED_REBOOT_STORE_PASSWORD")
+            def keyAliasValue = System.getenv("ADVANCED_REBOOT_KEY_ALIAS")
+            def keyPasswordValue = System.getenv("ADVANCED_REBOOT_KEY_PASSWORD")
+
+            if (keystorePath == null ||
+                storePasswordValue == null ||
+                keyAliasValue == null ||
+                keyPasswordValue == null) {
+
+                throw new GradleException(
+                    "Release signing credentials are missing. " +
+                    "Build release APKs through GitHub Actions."
+                )
+            }
+
+            storeFile file(keystorePath)
+            storePassword storePasswordValue
+            keyAlias keyAliasValue
+            keyPassword keyPasswordValue
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
         }
     }
 
