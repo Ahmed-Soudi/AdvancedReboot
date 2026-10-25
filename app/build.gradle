@@ -1,21 +1,30 @@
-plugins { id 'com.android.application' }
+plugins {
+    id 'com.android.application'
+}
 
 android {
     namespace 'com.soudi.advancedreboot'
     compileSdk 35
 
     defaultConfig {
-        applicationId 'com.soudi.advancedreboot'
+        applicationId "com.soudi.advancedreboot"
         minSdk 26
         targetSdk 33
         versionCode 4
-        versionName '1.3'
+        versionName "1.3"
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            if (variant.buildType.name == "release") {
+                outputFileName = "AdvancedReboot.apk"
+            }
         }
     }
 }
