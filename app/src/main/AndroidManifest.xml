@@ -45,7 +45,7 @@
         <service
             android:name=".RestartTileService"
             android:exported="true"
-            android:icon="@drawable/ic_restart"
+            android:icon="@drawable/ic_recovery"
             android:label="Restart"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
