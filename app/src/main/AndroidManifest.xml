@@ -8,8 +8,8 @@
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/ic_restart"
-        android:roundIcon="@drawable/ic_restart"
+        android:icon="@drawable/ic_recovery"
+        android:roundIcon="@drawable/ic_recovery"
         android:label="Advanced Reboot"
         android:theme="@style/AppTheme">
 
