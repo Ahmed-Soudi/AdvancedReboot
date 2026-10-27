@@ -8,8 +8,8 @@
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/ic_recovery"
-        android:roundIcon="@drawable/ic_recovery"
+        android:icon="@drawable/ic_launcher_recovery"
+        android:roundIcon="@drawable/ic_launcher_recovery"
         android:label="Advanced Reboot"
         android:theme="@style/AppTheme">
 
@@ -45,7 +45,7 @@
         <service
             android:name=".RestartTileService"
             android:exported="true"
-            android:icon="@drawable/ic_recovery"
+            android:icon="@drawable/ic_restart"
             android:label="Restart"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
